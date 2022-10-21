@@ -1,0 +1,54 @@
+group 'tech.shmy.flutter_umeng_common'
+version '1.0-SNAPSHOT'
+
+buildscript {
+    ext.kotlin_version = '1.6.10'
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://repo1.maven.org/maven2/'}
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.1.2'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+android {
+    compileSdkVersion 33
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    defaultConfig {
+        minSdkVersion 16
+    }
+}
+dependencies {
+    // 友盟基础组件库（所有友盟业务SDK都依赖基础组件库）
+    implementation  'com.umeng.umsdk:common:9.5.2'// (必选)
+    implementation  'com.umeng.umsdk:asms:1.6.3'// 必选
+
+//    implementation  'com.umeng.umsdk:abtest:1.0.1'//使用U-App中ABTest能力，可选
+}
