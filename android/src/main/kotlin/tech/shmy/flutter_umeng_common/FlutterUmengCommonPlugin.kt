@@ -1,5 +1,6 @@
 package tech.shmy.flutter_umeng_common
 
+import android.app.Activity
 import android.content.Context
 import android.os.Build
 import android.util.Log
@@ -9,6 +10,8 @@ import com.umeng.analytics.MobclickAgent.onPageEnd
 import com.umeng.analytics.MobclickAgent.onPageStart
 import com.umeng.commonsdk.UMConfigure
 import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.embedding.engine.plugins.activity.ActivityAware
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -18,13 +21,14 @@ import java.lang.reflect.Method
 
 
 /** FlutterUmengCommonPlugin */
-class FlutterUmengCommonPlugin : FlutterPlugin, MethodCallHandler {
+class FlutterUmengCommonPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     /// The MethodChannel that will the communication between Flutter and native Android
     ///
     /// This local reference serves to register the plugin with the Flutter Engine and unregister it
     /// when the Flutter Engine is detached from the Activity
     private lateinit var channel: MethodChannel
     private lateinit var context: Context
+    private lateinit var activity: Activity
     private var versionMatch = false;
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
@@ -113,7 +117,7 @@ class FlutterUmengCommonPlugin : FlutterPlugin, MethodCallHandler {
     private fun initCommon(args: List<*>) {
         val appkey = args[0] as String
         val channel = args[2] as String
-        UMConfigure.preInit(context, appkey, channel)
+        UMConfigure.preInit(activity, appkey, channel)
         UMConfigure.init(context, appkey, channel, UMConfigure.DEVICE_TYPE_PHONE, null)
         Log.i("UMLog", "initCommon:$appkey@$channel")
     }
@@ -171,5 +175,19 @@ class FlutterUmengCommonPlugin : FlutterPlugin, MethodCallHandler {
         val error = args[0] as String
         MobclickAgent.reportError(context, error)
         Log.i("UMLog", "reportError:$error")
+    }
+
+    override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+        activity = binding.activity;
+    }
+
+    override fun onDetachedFromActivityForConfigChanges() {
+    }
+
+    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+        onAttachedToActivity(binding)
+    }
+
+    override fun onDetachedFromActivity() {
     }
 }
